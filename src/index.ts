@@ -6,7 +6,10 @@ import * as cors from "cors";
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import { Request, Response } from "express";
-import { register, checkLogin, auth } from "./auth";
+import { register, checkLogin, auth } from "./components/auth";
+const accounts = require('./components/accounts');
+const boards = require("./components/boards");
+const tasks = require("./components/tasks");
 const jwt = require("jsonwebtoken");
 
 createConnection().then(async connection => {
@@ -25,14 +28,9 @@ createConnection().then(async connection => {
     app.use(auth);
 
     // register routes
-    app.post("/accounts", async (req, res) => {
-      const user = await repo.create(req.body);
-      return repo.save(user);
-    });
-
-    app.get("/accounts", (req, res) => repo.find());
-    app.get("/accounts/:id", (req, res) => repo.findOneById(req.params.id));
-    app.delete("/accounts/:id", (req, res) => repo.removeById(req.params.id));
+    app.use("/accounts", accounts);
+    app.use("/boards", boards);
+    app.use("/tasks", tasks);
 
     // start express server
     app.listen(process.env.PORT);  
