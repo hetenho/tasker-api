@@ -9,7 +9,9 @@ export class Task {
 
   @Column() description: string;
   @Column() boardId: number;
-  @Column({ nullable: true }) trackId: number;
+  @Column({ nullable: true })
+  trackId: number;
+  @Column() orderNumber: number;
 
   @ManyToOne(type => Track, track => track.tasks)
   @JoinColumn()
