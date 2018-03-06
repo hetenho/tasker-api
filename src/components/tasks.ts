@@ -10,11 +10,27 @@ const router = express.Router();
 
 router.post("/", async (req: Request, res: Response) => {
   const taskRepo = getConnection().getRepository(Task);
-  const task = (await taskRepo.save(req.body)) as Task;
+  let last = await taskRepo
+    .createQueryBuilder("task")
+    .select("max(task.orderNumber)")
+    .getRawOne();
+    
+  last = !last.max ? 0 : last.max + 1;
+  const task = (await taskRepo.save({orderNumber: last, ...req.body})) as Task;
   return res.json({
     ok: true,
     message: `Task ${task.title} created!`,
     task
+  });
+});
+
+router.get("/:boardId", async (req: Request, res: Response) => {
+  const taskRepo = getConnection().getRepository(Task);
+  const tasks = (await taskRepo.find({ boardId: req.params.boardId })) as Task[];
+  return res.json({
+    ok: true,
+    message: `Tasks fetched successfully!`,
+    tasks
   });
 });
 
